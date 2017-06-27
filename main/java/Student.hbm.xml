@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>  
+<!DOCTYPE hibernate-mapping PUBLIC  
+ "-//Hibernate/Hibernate Mapping DTD 3.0//EN"  
+ "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">  
+
+<hibernate-mapping>
+
+
+<class table="student_myschool" name="edu.learn.rest.RestfulWebservices.model.Student">
+
+<meta attribute="class-description"> This class contains the student detail. </meta>
+
+
+<id name="sid" column="sid" type="int">
+
+<generator class="native"/>
+
+</id>
+
+<property name="sname" column="sname" type="string"/>
+
+<property name="marks" column="marks" type="int"/>
+
+</class>
+
+</hibernate-mapping>
