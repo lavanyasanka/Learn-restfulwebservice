@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>  
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+    
+    <title>Student registration AngularJS with Rest </title>  
+ <script type="text/javascript">
+            var app = angular.module("StudentManagement", []);
+         
+            //Controller Part
+            app.controller("StudentController", function($scope, $http) {
+         
+               
+                $scope.students = [];
+                $scope.studentForm = {
+                    sid : -1,
+                    sname : "",
+                    marks : ""
+                };
+         
+                //Now load the data from server
+                _refreshStudentData();
+         
+                //HTTP POST/PUT methods for add/edit student
+                // with the help of id, we are going to find out whether it is put or post operation
+                
+                $scope.submitStudent = function() {
+         
+                    var method = "";
+                    var url = "";
+                    if ($scope.studentForm.id == -1) {
+                        //Id is absent in form data, it is create new  operation
+                        method = "POST";
+                        url = 'http://localhost:8085/RestfulWebservices/webapi/student';
+                    } else {
+                        //Id is present in form data, it is edit operation
+                        method = "PUT";
+                        url = 'http://localhost:8085/RestfulWebservices/webapi/student';
+                    }
+         
+                    $http({
+                        method : method,
+                        url : url,
+                        data : angular.toJson($scope.studentForm),
+                        headers : {
+                            'Content-Type' : 'application/json'
+                        }
+                    }).then( _success, _error );
+                };
+         
+                //HTTP DELETE- delete cstudent by Id
+                $scope.deleteStudent = function(student) {
+                    $http({
+                        method : 'DELETE',
+                        url : 'http://localhost:8085/RestfulWebservices/webapi/student/' + student.sid
+                    }).then(_success, _error);
+                };
+ 
+             // In case of edit, populate form fields and assign form.id with student id
+                $scope.editStudent = function(student) {
+                  
+                    $scope.studentForm.sname = student.sname;
+                    $scope.studentForm.marks = student.marks;
+                    $scope.studentForm.sid = student.sid;
+                };
+         
+                /* Private Methods */
+                //HTTP GET- get all students collection
+                function _refreshStudentData() {
+                    $http({
+                        method : 'GET',
+                        url : 'http://localhost:8085/RestfulWebservices/webapi/student'
+                    }).then(function successCallback(response) {
+                        $scope.countries = response.data;
+                    }, function errorCallback(response) {
+                        console.log(response.statusText);
+                    });
+                }
+         
+                function _success(response) {
+                	_refreshStudentData();
+                    _clearFormData()
+                }
+         
+                function _error(response) {
+                    console.log(response.statusText);
+                }
+         
+                //Clear the form
+                function _clearFormData() {
+                    $scope.studentForm.sid = -1;
+                    $scope.studentForm.sname = "";
+                    $scope.studentForm.marks = "";
+                
+                };
+            });
+        </script>
+        <style>
+           
+       .blue-button{
+     background: #25A6E1;
+     filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#25A6E1',endColorstr='#188BC0',GradientType=0);
+     padding:3px 5px;
+     color:#fff;
+     font-family:'Helvetica Neue',sans-serif;
+     font-size:12px;
+     border-radius:2px;
+     -moz-border-radius:2px;
+     -webkit-border-radius:4px;
+     border:1px solid #1A87B9
+           }     
+ 
+       .red-button{
+    background: #CD5C5C;
+ 
+    padding:3px 5px;
+    color:#fff;
+    font-family:'Helvetica Neue',sans-serif;
+    font-size:12px;
+    border-radius:2px;
+    -moz-border-radius:2px;
+    -webkit-border-radius:4px;
+    border:1px solid #CD5C5C
+           }      
+ 
+       table {
+           font-family: "Helvetica Neue", Helvetica, sans-serif;
+           width: 50%;
+       }
+ 
+       caption {
+           text-align: left;
+           color: silver;
+           font-weight: bold;
+           text-transform: uppercase;
+           padding: 5px;
+       }
+ 
+       th {
+           background: SteelBlue;
+           color: white;
+       }
+ 
+ 
+       tbody tr:nth-child(even) {
+           background: WhiteSmoke;
+       }
+ 
+       tbody tr td:nth-child(2) {
+           text-align:center;
+       }
+ 
+       tbody tr td:nth-child(3),
+       tbody tr td:nth-child(4) {
+           text-align: center;
+           font-family: monospace;
+       }
+ 
+       tfoot {
+           background: SeaGreen;
+           color: white;
+           text-align: right;
+       }
+ 
+       tfoot tr th:last-child {
+           font-family: monospace;
+       }
+ 
+       td,th{
+            border: 1px solid gray;
+            width: 25%;
+            text-align: left;
+            padding: 5px 10px;
+        }
+          
+            
+            
+        </style>
+    <head>
+    <body ng-app="StudentManagement" ng-controller="StudentController">
+         <h1>
+          Student information using AngularJS Restful web services    </h1> 
+        <form ng-submit="submitStudent()">
+            <table>
+               
+                <tr>
+                    <th colspan="2">Add/Edit student</th>
+                 </tr>
+                <tr>
+                    <td>Student</td>
+                    <td><input type="text" ng-model="studentForm.sname" /></td>
+                </tr>
+                <tr>
+                    <td>Marks</td>
+                    <td><input type="text" ng-model="studentForm.marks"  /></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" value="Submit" class="blue-button" /></td>
+                </tr>
+            </table>
+        </form>
+        <table>
+            <tr>
+              
+                <th>StudentName</th>
+                <th>Marks</th>
+                <th>Operations</th>
+               
+            </tr>
+ 
+            <tr ng-repeat="student in students">
+               
+    <td> {{ student.sname }}</td>
+    <td >{{ student.marks }}</td>  
+                
+                <td><a ng-click="editStudent(student)" class="blue-button">Edit</a> | <a ng-click="deleteStudent(student)" class="red-button">Delete</a></td>
+            </tr>
+ 
+        </table>
+ 
+       
+ 
+       
+      
+  </body>
+</html>
